@@ -1,11 +1,9 @@
 import importlib
 import os
+from config import CONFIG
 
 def main():
-    params={
-        "dwd": {"sun_recent_file": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/sun/recent/stundenwerte_SD_00662_akt.zip"},
-        "restapi": {"username":"root","password":"password", "url":"http://localhost:5000/api"}
-    }
+    params=CONFIG
 
 
     for f in sorted(os.listdir(os.path.join(os.getcwd(), "tasks"))):
