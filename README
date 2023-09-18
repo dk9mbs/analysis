@@ -1,0 +1,3 @@
+pip install wheel
+python -m pip install -U --force-reinstall pip
+pip install streamlit
