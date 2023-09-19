@@ -32,7 +32,8 @@ def execute(params={}):
             print(f"reading page: {page} (pagesize: {page_size})")
             df=pd.read_json(json.dumps(data))
 
-            df_all = df_all.append(df, ignore_index=True)
+            df_all=pd.concat([df_all, df])
+            #df_all = df_all.concat(df, ignore_index=True)
 
             page+=1
 

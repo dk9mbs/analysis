@@ -27,8 +27,8 @@ def execute(params={}):
             data=json.loads(rest.read_multible("aprs_owntrack_log",fetch, page=page, page_size=page_size))
 
             df=pd.read_json(json.dumps(data))
-            df_all = df_all.append(df, ignore_index=True)
-
+            #df_all = df_all.append(df, ignore_index=True)
+            df_all=pd.concat([df_all, df], ignore_index=True)
             page+=1
 
         df_all.to_csv("/tmp/aprs_owntrack_log.csv", index=False)

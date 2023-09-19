@@ -23,11 +23,11 @@ df_day=pd.read_csv("/tmp/iot_diff_nord_sued_day.csv").query(f"month == {x.month}
 
 st.markdown ("## Stündliches Delta Nord - Süd vs. DWD")
 st.write("Verglich zwischen der Sonnenscheindauer laut DWD (in der Einheit Sonnenscheindauer/10Min.) und der Differenz zwischen den Nord - Süd Temperatur Sensoren in °C")
-st.line_chart(data=df_hour, x="hour", y=["diff", "dwd_sunshine_duration"], )
+st.line_chart(data=df_hour, x="hour", y=["restapi_sunshine_duration", "dwd_sunshine_duration"], )
 
 st.caption("diff: Differenz Nord - Süd Sensor in °C / dwd_sunshine_duration: Sonnenscheindauer laut DWD Station 662 in 10 Minuten")
 
-df_hour[["hour","diff","dwd_sunshine_duration"]]
+df_hour[["hour","diff","restapi_sunshine_duration", "dwd_sunshine_duration"]]
 
 st.markdown ("## Tägliches Delta Nord - Süd")
 st.bar_chart(data=df_day, x="datetime", y="diff")
