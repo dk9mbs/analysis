@@ -17,20 +17,24 @@ x = datetime.strptime(str(chart_date), "%Y-%m-%d")
 
 df_hour=pd.read_csv("/tmp/iot_diff_nord_sued_hour.csv").query(f"month == {x.month} and year == {x.year} and day == {x.day}")
 df_hour['diff']=np.where(df_hour["diff"] <= min_diff, 0, df_hour["diff"])
-df_hour['dwd_sunshine_duration']=df_hour['dwd_sunshine_duration']/10
+df_hour['dwd_sunshine_duration']=df_hour['dwd_sunshine_duration']
 
 df_day=pd.read_csv("/tmp/iot_diff_nord_sued_day.csv").query(f"month == {x.month} and year== {x.year}")
 
 st.markdown ("## Stündliches Delta Nord - Süd vs. DWD")
 st.write("Verglich zwischen der Sonnenscheindauer laut DWD (in der Einheit Sonnenscheindauer/10Min.) und der Differenz zwischen den Nord - Süd Temperatur Sensoren in °C")
-st.line_chart(data=df_hour, x="hour", y=["restapi_sunshine_duration", "dwd_sunshine_duration"], )
+st.area_chart(data=df_hour, 
+    x="hour", y=["restapi_sunshine_duration", "dwd_sunshine_duration"]  )
 
-st.caption("diff: Differenz Nord - Süd Sensor in °C / dwd_sunshine_duration: Sonnenscheindauer laut DWD Station 662 in 10 Minuten")
+#st.caption("diff: Differenz Nord - Süd Sensor in °C / dwd_sunshine_duration: Sonnenscheindauer laut DWD Station 662 in 10 Minuten")
 
 df_hour[["hour","diff","restapi_sunshine_duration", "dwd_sunshine_duration"]]
 
-st.markdown ("## Tägliches Delta Nord - Süd")
-st.bar_chart(data=df_day, x="datetime", y="diff")
+#st.markdown ("## Tägliches Delta Nord - Süd")
+#st.bar_chart(data=df_day, x="datetime", y="diff")
 
-#df_track=pd.read_csv("/tmp/aprs_owntrack_log.csv")
-#st.map(df_track)
+#
+# MAP
+#
+df_track=pd.read_csv("/tmp/aprs_owntrack_log.csv")
+st.map(df_track)
