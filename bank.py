@@ -22,6 +22,14 @@ times = pd.to_datetime(df_all.valutadatum)
 df_all['datetime']=pd.to_datetime(df_all.valutadatum, format='%Y-%m-%dT%H:%M:%S')
 df_all['year']=df_all.datetime.dt.year
 df_all['month']=df_all.datetime.dt.month
+
+if not chk_show_costs:
+    df_all.query("betrag >= 0", inplace=True)
+
+if not chk_show_income:
+    df_all.query("betrag <= 0", inplace=True)
+
+
 #
 # year with cat
 #
@@ -52,12 +60,6 @@ tmp=tmp.index.to_frame(name=['year', 'month']).join(tmp)
 tmp=tmp.reset_index(drop=True)
 df_month=tmp.query(f"year == {analytic_year}")
 
-
-
-#df_month
-
-
-
 #
 # month wit cat
 #
@@ -68,7 +70,11 @@ tmp=tmp.index.to_frame(name=['year', 'month', 'category_id']).join(tmp)
 tmp=tmp.reset_index(drop=True)
 df_month_cat=tmp.query(f"year == {analytic_year} and month == {analytic_month}")
 
+def compare_years(df: pd.DataFrame, year_base: int, year_comp: int):
+    df_year_base=df.query("year == 2023")
+    df_year_comp=df.query("year == 2022")
 
+    return pd.merge(df_year_base, df_year_comp,on=["month","category_id"], how="outer")
 
 
 tab1, tab2, tab3, tab4 = st.tabs(['Jahresvergleich','Monate (ausgewähltes Jahr)', 'Kategorien','Buchungen'])
@@ -85,22 +91,17 @@ with tab3:
     col1 = st.columns(1)
 
     st.markdown(f"##### Ausgaben {analytic_year} nach Kategorien")
-
-    tmp=df_year_cat.copy()
-
-    if not chk_show_costs:
-        tmp.query("betrag >= 0", inplace=True)
-
-    if not chk_show_income:
-        tmp.query("betrag <= 0", inplace=True)
-
-    st.bar_chart(data=tmp, x="category_id", y=["betrag"]  )
+    st.bar_chart(data=df_year_cat, x="category_id", y=["betrag"]  )
 
 
 
 with tab4:
+    chk_show_all_month_in_list=st.checkbox("Das komplette Jahr anzeigen", value=False)
     tmp=df_all[['beguenstigter_zahlungspflichtiger','betrag','category_id','year', 'month']]
-    tmp.query(f"year == {analytic_year} and month =={analytic_month}", inplace=True)
+    if chk_show_all_month_in_list:
+        tmp.query(f"year == {analytic_year} and betrag != 0", inplace=True)
+    else:
+        tmp.query(f"year == {analytic_year} and month =={analytic_month} and betrag != 0", inplace=True)
 
 
     cfg={
@@ -124,6 +125,8 @@ with tab4:
 
     }
     st.dataframe(data=tmp, height=400, use_container_width=True, hide_index=True,column_config=cfg)
+
+    st.write(tmp['betrag'].sum())
 
 #tmp=df_month_cat.query(f"month == {analytic_month}")
 #tmp
