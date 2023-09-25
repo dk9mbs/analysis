@@ -13,6 +13,7 @@ analytic_month=st.sidebar.number_input("Monat", min_value=1, max_value=12, value
 
 chk_show_income=st.sidebar.checkbox("Einnahmen auszeigen", value=True)
 chk_show_costs=st.sidebar.checkbox("Kosten auszeigen", value=True)
+chk_show_only_main_account=st.sidebar.checkbox("Nur das Girokonto anzeigen", value=False)
 
 analytic_comp_year=st.sidebar.number_input("Vergleichs Jahr", min_value=2000, max_value=2030, value=2023)
 
@@ -31,6 +32,8 @@ if not chk_show_costs:
 if not chk_show_income:
     df_all.query("betrag <= 0", inplace=True)
 
+if chk_show_only_main_account==True:
+    df_all.query("account_id == 'DE65259501300173001058'", inplace=True)
 
 #
 # year with cat
@@ -75,7 +78,9 @@ df_month_cat=tmp.query(f"year == {analytic_year} and month == {analytic_month}")
 
 
 def compare_year_cat(df_year: pd.DataFrame, df_comp: pd.DataFrame):
-    return pd.merge(df_year, df_comp,on=["category_id"], how="outer" )
+    df=pd.merge(df_year, df_comp,on=["category_id"], how="outer")
+    df['diff']=df['betrag_x']-df['betrag_y']
+    return df
 
 
 tab1, tab2, tab3, tab4 = st.tabs(['Jahresvergleich','Monate (ausgewähltes Jahr)', 'Kategorien','Buchungen'])
@@ -91,6 +96,8 @@ tab2.bar_chart(data=df_month, x="month", y=["betrag"]  )
 with tab3:
     st.markdown(f"##### Ausgaben {analytic_year} nach Kategorien")
     st.bar_chart(data=df_year_cat, x="category_id", y=["betrag"]  )
+
+    st.bar_chart(data=compare_year_cat(df_year_cat, df_year_cat_comp), x="category_id", y=["diff"]  )
 
     st.dataframe(data=compare_year_cat(df_year_cat, df_year_cat_comp) )
 
