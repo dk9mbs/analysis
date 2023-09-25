@@ -14,6 +14,8 @@ analytic_month=st.sidebar.number_input("Monat", min_value=1, max_value=12, value
 chk_show_income=st.sidebar.checkbox("Einnahmen auszeigen", value=True)
 chk_show_costs=st.sidebar.checkbox("Kosten auszeigen", value=True)
 
+analytic_comp_year=st.sidebar.number_input("Vergleichs Jahr", min_value=2000, max_value=2030, value=2023)
+
 
 
 df_all=pd.read_csv("/tmp/bank_item.csv")
@@ -39,6 +41,7 @@ tmp=pd_ser.to_frame()
 tmp=tmp.index.to_frame(name=['year', 'category_id']).join(tmp)
 tmp=tmp.reset_index(drop=True)
 df_year_cat=tmp.query(f"year == {analytic_year}")
+df_year_cat_comp=tmp.query(f"year == {analytic_comp_year}")
 
 #
 # year
@@ -70,11 +73,9 @@ tmp=tmp.index.to_frame(name=['year', 'month', 'category_id']).join(tmp)
 tmp=tmp.reset_index(drop=True)
 df_month_cat=tmp.query(f"year == {analytic_year} and month == {analytic_month}")
 
-def compare_years(df: pd.DataFrame, year_base: int, year_comp: int):
-    df_year_base=df.query("year == 2023")
-    df_year_comp=df.query("year == 2022")
 
-    return pd.merge(df_year_base, df_year_comp,on=["month","category_id"], how="outer")
+def compare_year_cat(df_year: pd.DataFrame, df_comp: pd.DataFrame):
+    return pd.merge(df_year, df_comp,on=["category_id"], how="outer" )
 
 
 tab1, tab2, tab3, tab4 = st.tabs(['Jahresvergleich','Monate (ausgewähltes Jahr)', 'Kategorien','Buchungen'])
@@ -88,11 +89,10 @@ tab2.bar_chart(data=df_month, x="month", y=["betrag"]  )
 
 
 with tab3:
-    col1 = st.columns(1)
-
     st.markdown(f"##### Ausgaben {analytic_year} nach Kategorien")
     st.bar_chart(data=df_year_cat, x="category_id", y=["betrag"]  )
 
+    st.dataframe(data=compare_year_cat(df_year_cat, df_year_cat_comp) )
 
 
 with tab4:
