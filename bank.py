@@ -33,7 +33,7 @@ if not chk_show_income:
     df_all.query("betrag <= 0", inplace=True)
 
 if chk_show_only_main_account==True:
-    df_all.query("account_id == 'DE65259501300173001058'", inplace=True)
+    df_all.query("account_id == 'DEXXXXXXXXXXXXXXx'", inplace=True)
 
 #
 # year with cat
@@ -79,11 +79,13 @@ df_month_cat=tmp.query(f"year == {analytic_year} and month == {analytic_month}")
 
 def compare_year_cat(df_year: pd.DataFrame, df_comp: pd.DataFrame):
     df=pd.merge(df_year, df_comp,on=["category_id"], how="outer")
+    df['betrag_x'].fillna(0, inplace=True)
+    df['betrag_y'].fillna(0, inplace=True)
     df['diff']=df['betrag_x']-df['betrag_y']
     return df
 
 
-tab1, tab2, tab3, tab4 = st.tabs(['Jahresvergleich','Monate (ausgewähltes Jahr)', 'Kategorien','Buchungen'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Jahresvergleich','Monate (ausgewähltes Jahr)', 'Kategorien','Vorjahresvergleich','Buchungen'])
 
 tab1.markdown(f"##### Alle Jahre")
 tab1.bar_chart(data=df_year, x="year", y=["betrag"]  )
@@ -97,12 +99,21 @@ with tab3:
     st.markdown(f"##### Ausgaben {analytic_year} nach Kategorien")
     st.bar_chart(data=df_year_cat, x="category_id", y=["betrag"]  )
 
-    st.bar_chart(data=compare_year_cat(df_year_cat, df_year_cat_comp), x="category_id", y=["diff"]  )
-
-    st.dataframe(data=compare_year_cat(df_year_cat, df_year_cat_comp) )
 
 
 with tab4:
+    chk_show_only_budget=st.checkbox("Nur Budgetüberschreitungen anzeigen", value=False)
+    df=compare_year_cat(df_year_cat, df_year_cat_comp)
+
+
+    if chk_show_only_budget:
+        df.query("diff < 0", inplace=True)
+
+    st.bar_chart(data=df, x="category_id", y=["diff"]  )
+    st.dataframe(data=df)
+
+
+with tab5:
     chk_show_all_month_in_list=st.checkbox("Das komplette Jahr anzeigen", value=False)
     tmp=df_all[['beguenstigter_zahlungspflichtiger','betrag','category_id','year', 'month']]
     if chk_show_all_month_in_list:
