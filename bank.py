@@ -8,6 +8,8 @@ import numpy as np
 
 st.title("DK9MBS - GUV")
 
+bank_account_file="/tmp/bank_account.csv"
+
 analytic_year=st.sidebar.number_input("Jahr", min_value=2000, max_value=2030, value=2023)
 analytic_month=st.sidebar.number_input("Monat", min_value=1, max_value=12, value=9)
 
@@ -32,8 +34,15 @@ if not chk_show_costs:
 if not chk_show_income:
     df_all.query("betrag <= 0", inplace=True)
 
+
+def _get_giro_account_id():
+    df=pd.read_csv(bank_account_file)
+    df.query("name == 'Giro Konto Markus'", inplace=True)
+    return df['id'].values[0]
+
 if chk_show_only_main_account==True:
-    df_all.query("account_id == 'DEXXXXXXXXXXXXXXx'", inplace=True)
+    account_id=_get_giro_account_id()
+    df_all.query(f"account_id == '{account_id}'", inplace=True)
 
 #
 # year with cat

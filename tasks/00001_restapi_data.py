@@ -15,7 +15,7 @@ def execute(params={}):
     page=0
     page_size=50000
     df_all=pd.DataFrame()
-    reload_data=True
+    reload_data=False
 
     if reload_data:
         while data!=[]:
